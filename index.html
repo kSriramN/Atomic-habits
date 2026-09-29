@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0B0F17">
+  <meta name="description" content="Track tiny daily habits and get 1% better every day.">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Atomic Habits">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <title>Atomic Habits | 1% Better Every Day</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+
+  
+
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body class="bg-atomic-dark text-slate-100 min-h-screen flex justify-center selection:bg-atomic-gold selection:text-black">
+
+  <canvas id="celebrationCanvas" class="fixed inset-0 pointer-events-none z-50 w-full h-full"></canvas>
+
+  <div class="w-full max-w-lg min-h-screen flex flex-col relative pb-28 border-x border-atomic-border/30 bg-atomic-dark shadow-2xl">
+
+    <!-- Top App Bar -->
+    <header class="sticky top-0 z-30 px-5 pt-5 pb-3 glass-nav border-b border-atomic-border/40 flex items-center justify-between">
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-atomic-gold animate-ping"></span>
+          <span class="text-xs uppercase tracking-widest font-mono text-atomic-gold font-semibold">1% Better Every Day</span>
+        </div>
+        <h1 id="headerDate" class="text-xl font-extrabold tracking-tight text-white mt-0.5">Today's System</h1>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <!-- Audio toggle button -->
+        <button id="toggleSoundBtn" class="p-2.5 rounded-xl bg-atomic-card border border-atomic-border/60 hover:border-atomic-gold/50 transition-all text-slate-300 hover:text-white" title="Toggle audio chime">
+          <svg id="soundOnIcon" class="w-4 h-4 text-atomic-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+          </svg>
+          <svg id="soundOffIcon" class="w-4 h-4 text-slate-500 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+          </svg>
+        </button>
+
+        <!-- New Habit Quick Action -->
+        <button id="openAddHabitModalBtn" class="flex items-center gap-1.5 bg-gradient-to-r from-atomic-gold to-atomic-amber text-slate-950 font-bold px-3.5 py-2 rounded-xl text-xs shadow-lg shadow-atomic-gold/20 hover:brightness-110 active:scale-95 transition-all">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+          </svg>
+          <span>Build Habit</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="flex-1 px-4 py-4 overflow-y-auto">
+
+      <!-- ================= TAB 1: TODAY (HABITS TRACKER) ================= -->
+      <section id="tabToday" class="space-y-5 block transition-opacity duration-200">
+        
+        <!-- Daily Progress & Aggregation Banner -->
+        <div class="p-5 rounded-2xl glass-card border border-atomic-border relative overflow-hidden bg-gradient-to-br from-atomic-card via-atomic-card to-atomic-card/40">
+          <div class="absolute -right-8 -bottom-8 w-32 h-32 bg-atomic-gold/10 rounded-full blur-2xl pointer-events-none"></div>
+
+          <div class="flex justify-between items-start mb-3">
+            <div>
+              <span class="text-xs font-mono font-medium text-slate-400">DAILY SCORECARD</span>
+              <div class="flex items-baseline gap-2 mt-0.5">
+                <h3 id="progressPercentage" class="text-2xl font-extrabold text-white">0%</h3>
+                <span id="progressFraction" class="text-xs text-slate-400 font-medium">0 of 0 completed</span>
+              </div>
+            </div>
+
+            <!-- Compound 1% Formula pill -->
+            <div class="bg-black/40 border border-atomic-border/80 px-3 py-1.5 rounded-xl text-right">
+              <span class="text-[10px] uppercase font-mono block text-slate-400">Compound Effect</span>
+              <span class="text-xs font-mono font-bold text-atomic-gold">1.01³⁶⁵ = 37.78×</span>
+            </div>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="w-full bg-slate-900/90 h-3 rounded-full overflow-hidden p-0.5 border border-atomic-border/50">
+            <div id="dailyProgressBar" class="h-full bg-gradient-to-r from-atomic-gold via-atomic-amber to-atomic-emerald rounded-full transition-all duration-500 ease-out" style="width: 0%"></div>
+          </div>
+
+          <!-- Never Miss Twice Safeguard Banner -->
+          <div id="missTwiceShieldBanner" class="mt-3.5 pt-3 border-t border-atomic-border/40 flex items-center justify-between text-xs text-slate-300">
+            <div class="flex items-center gap-2">
+              <span class="text-base">🛡️</span>
+              <span><strong>Rule:</strong> "Never miss twice. Missing once is an accident."</span>
+            </div>
+            <span id="streakShieldStatus" class="font-mono text-[11px] text-atomic-emerald bg-atomic-emerald/10 px-2 py-0.5 rounded-md border border-atomic-emerald/20">Shield Active</span>
+          </div>
+        </div>
+
+        <!-- Habits List Section -->
+        <div>
+          <div class="flex items-center justify-between mb-3 px-1">
+            <div class="flex items-center gap-2">
+              <h2 class="text-base font-bold text-white tracking-tight">Active Habits</h2>
+              <span id="habitCountBadge" class="bg-atomic-border text-slate-300 text-xs px-2 py-0.5 rounded-full font-mono">0</span>
+            </div>
+            <span class="text-xs text-slate-400">Tap a habit for its calendar</span>
+          </div>
+
+          <!-- Habit Cards Container -->
+          <div id="habitListContainer" class="space-y-3">
+            <!-- Dynamic habit items injected via JS -->
+          </div>
+
+          <!-- Empty State -->
+          <div id="emptyHabitsState" class="hidden text-center py-12 px-6 rounded-2xl border border-dashed border-atomic-border/80 bg-atomic-card/30">
+            <div class="w-16 h-16 mx-auto mb-3 rounded-2xl bg-atomic-gold/10 border border-atomic-gold/20 flex items-center justify-center text-2xl">
+              🌱
+            </div>
+            <h3 class="text-base font-bold text-white mb-1">No habits created yet</h3>
+            <p class="text-xs text-slate-400 max-w-xs mx-auto mb-4 leading-relaxed">
+              "You do not rise to the level of your goals. You fall to the level of your systems."
+            </p>
+            <button id="addStarterHabitsBtn" class="inline-flex items-center gap-2 bg-atomic-gold text-slate-950 font-bold px-4 py-2 rounded-xl text-xs hover:bg-atomic-amber transition-all">
+              Load 2-Minute Starter Habits
+            </button>
+          </div>
+        </div>
+
+        <!-- Daily Philosophy quote snippet -->
+        <div class="p-4 rounded-xl bg-slate-900/60 border border-atomic-border/50 flex items-start gap-3">
+          <span class="text-2xl mt-0.5">💡</span>
+          <div>
+            <span class="text-[11px] font-mono text-atomic-gold uppercase font-bold tracking-wider">The 2-Minute Rule</span>
+            <p class="text-xs text-slate-300 mt-0.5 leading-relaxed">
+              When starting a new habit, it should take less than two minutes to do. Optimize for starting first; the rest will follow.
+            </p>
+          </div>
+        </div>
+
+      </section>
+
+      <section id="tabTimer" class="space-y-5 hidden transition-opacity duration-200">
+        
+        <!-- Timer Header & Active Habit indicator -->
+        <div class="text-center pt-2">
+          <span class="text-xs uppercase font-mono tracking-widest text-atomic-gold font-bold">Atomic Focus Chamber</span>
+          <h2 id="activeTimerHabitTitle" class="text-xl font-bold text-white mt-1">2-Minute Atomic Starter</h2>
+          <p id="activeTimerHabitCue" class="text-xs text-slate-400 mt-0.5 italic">Cue: "After I sit at my desk, I will focus"</p>
+        </div>
+
+        <!-- Circular Countdown Visualizer -->
+        <div class="relative w-64 h-64 mx-auto my-3 flex items-center justify-center">
+          <svg class="w-full h-full -rotate-90 transform" viewBox="0 0 220 220">
+            <!-- Background circle track -->
+            <circle cx="110" cy="110" r="94" stroke="#1E273A" stroke-width="12" fill="none" />
+            <!-- Animated progress ring -->
+            <circle id="timerProgressRing" cx="110" cy="110" r="94" stroke="#F59E0B" stroke-width="12" stroke-linecap="round" fill="none"
+              stroke-dasharray="590.62" stroke-dashoffset="0" class="transition-all duration-200" />
+          </svg>
+
+          <!-- Centered Countdown Text -->
+          <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+            <span id="timerDisplay" class="font-mono text-5xl font-black tracking-tight text-white drop-shadow-md">02:00</span>
+            <span id="timerStatusLabel" class="text-xs uppercase font-mono tracking-wider font-semibold text-slate-400 mt-2">Ready to Start</span>
+            <span class="text-[10px] text-slate-500 font-mono mt-1">Runs with screen locked</span>
+          </div>
+        </div>
+
+        <!-- Presets Selection Bar -->
+        <div>
+          <label class="block text-xs font-mono uppercase text-slate-400 font-medium mb-2 text-center">Focus Presets</label>
+          <div class="grid grid-cols-4 gap-2">
+            <button data-duration="120" class="timer-preset-btn active bg-atomic-gold text-slate-950 font-bold py-2.5 rounded-xl text-xs border border-atomic-gold transition-all text-center">
+              ⚡ 2 min
+              <span class="block text-[9px] font-normal opacity-85">Atomic Rule</span>
+            </button>
+            <button data-duration="300" class="timer-preset-btn bg-atomic-card text-slate-300 font-bold py-2.5 rounded-xl text-xs border border-atomic-border hover:border-atomic-gold/50 transition-all text-center">
+              ☕ 5 min
+              <span class="block text-[9px] font-normal text-slate-400">Reset</span>
+            </button>
+            <button data-duration="900" class="timer-preset-btn bg-atomic-card text-slate-300 font-bold py-2.5 rounded-xl text-xs border border-atomic-border hover:border-atomic-gold/50 transition-all text-center">
+              🎯 15 min
+              <span class="block text-[9px] font-normal text-slate-400">Deep Work</span>
+            </button>
+            <button data-duration="1500" class="timer-preset-btn bg-atomic-card text-slate-300 font-bold py-2.5 rounded-xl text-xs border border-atomic-border hover:border-atomic-gold/50 transition-all text-center">
+              🍅 25 min
+              <span class="block text-[9px] font-normal text-slate-400">Pomodoro</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Timer Controls (Start, Pause, Reset) -->
+        <div class="flex items-center justify-center gap-4 pt-2">
+          <!-- Reset button -->
+          <button id="timerResetBtn" class="p-3.5 rounded-2xl bg-atomic-card border border-atomic-border text-slate-400 hover:text-white hover:border-slate-500 active:scale-95 transition-all">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </button>
+
+          <!-- Main Start/Pause Action -->
+          <button id="timerToggleBtn" class="flex-1 max-w-[200px] py-4 rounded-2xl bg-gradient-to-r from-atomic-gold to-atomic-fire text-slate-950 font-black text-base tracking-wide flex items-center justify-center gap-2 shadow-lg shadow-atomic-gold/25 hover:brightness-110 active:scale-95 transition-all">
+            <svg id="timerPlayIcon" class="w-6 h-6 fill-current" viewBox="0 0 24 24">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+            <svg id="timerPauseIcon" class="w-6 h-6 fill-current hidden" viewBox="0 0 24 24">
+              <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+            </svg>
+            <span id="timerToggleText">START FOCUS</span>
+          </button>
+
+          <!-- Complete Early / Done button -->
+          <button id="timerFinishBtn" class="p-3.5 rounded-2xl bg-atomic-emerald/15 border border-atomic-emerald/40 text-atomic-emerald hover:bg-atomic-emerald hover:text-slate-950 active:scale-95 transition-all" title="Mark habit done right now">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Associated Habit Selector -->
+        <div class="p-4 rounded-2xl bg-atomic-card/60 border border-atomic-border">
+          <label class="block text-xs font-mono uppercase text-slate-400 font-semibold mb-2">Connect to a Habit</label>
+          <select id="timerHabitSelector" class="w-full bg-slate-900 border border-atomic-border rounded-xl px-3 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-atomic-gold">
+            <!-- Dynamically populated -->
+          </select>
+          <p class="text-[11px] text-slate-400 mt-2">When this timer runs out, the selected habit automatically gains streak points & completes!</p>
+        </div>
+
+      </section>
+
+      <section id="tabWisdom" class="space-y-5 hidden transition-opacity duration-200">
+        
+        <!-- Wisdom Tab Header -->
+        <div>
+          <span class="text-xs uppercase font-mono tracking-widest text-atomic-gold font-bold">Atomic Codex</span>
+          <h2 class="text-xl font-extrabold text-white mt-0.5">The 4 Laws of Behavior Change</h2>
+          <p class="text-xs text-slate-400 mt-1">Direct principles from James Clear's framework for building good habits and breaking bad ones.</p>
+        </div>
+
+        <!-- The 4 Laws Interactive Grid -->
+        <div class="grid grid-cols-2 gap-3">
+          <!-- Law 1 -->
+          <div class="p-4 rounded-2xl bg-atomic-card border border-blue-500/30 hover:border-blue-500 transition-all">
+            <span class="text-xs font-mono font-bold text-blue-400">1ST LAW (CUE)</span>
+            <h4 class="text-sm font-bold text-white mt-1">Make it Obvious</h4>
+            <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">Design your environment so cues of good habits are visible and clear.</p>
+            <span class="inline-block mt-2 text-[10px] text-blue-300 font-mono bg-blue-500/10 px-2 py-0.5 rounded">Habit Stacking</span>
+          </div>
+
+          <!-- Law 2 -->
+          <div class="p-4 rounded-2xl bg-atomic-card border border-atomic-gold/30 hover:border-atomic-gold transition-all">
+            <span class="text-xs font-mono font-bold text-atomic-gold">2ND LAW (CRAVING)</span>
+            <h4 class="text-sm font-bold text-white mt-1">Make it Attractive</h4>
+            <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">Bundle what you need to do with what you want to do.</p>
+            <span class="inline-block mt-2 text-[10px] text-amber-300 font-mono bg-atomic-gold/10 px-2 py-0.5 rounded">Temptation Bundling</span>
+          </div>
+
+          <!-- Law 3 -->
+          <div class="p-4 rounded-2xl bg-atomic-card border border-emerald-500/30 hover:border-emerald-500 transition-all">
+            <span class="text-xs font-mono font-bold text-emerald-400">3RD LAW (RESPONSE)</span>
+            <h4 class="text-sm font-bold text-white mt-1">Make it Easy</h4>
+            <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">Reduce friction. Standardize before you optimize.</p>
+            <span class="inline-block mt-2 text-[10px] text-emerald-300 font-mono bg-emerald-500/10 px-2 py-0.5 rounded">The 2-Minute Rule</span>
+          </div>
+
+          <!-- Law 4 -->
+          <div class="p-4 rounded-2xl bg-atomic-card border border-purple-500/30 hover:border-purple-500 transition-all">
+            <span class="text-xs font-mono font-bold text-purple-400">4TH LAW (REWARD)</span>
+            <h4 class="text-sm font-bold text-white mt-1">Make it Satisfying</h4>
+            <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">What is immediately rewarded is repeated. What is punished is avoided.</p>
+            <span class="inline-block mt-2 text-[10px] text-purple-300 font-mono bg-purple-500/10 px-2 py-0.5 rounded">Habit Tracker</span>
+          </div>
+        </div>
+
+        <!-- Searchable Quotes Directory -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-sm font-bold text-white">Curated Book Insights</h3>
+            <span class="text-[11px] font-mono text-slate-400" id="wisdomCountLabel">20+ Insights</span>
+          </div>
+
+          <div class="space-y-3" id="wisdomQuotesContainer">
+            <!-- Dynamic insights cards injected here -->
+          </div>
+        </div>
+
+      </section>
+
+      <section id="tabIdentity" class="space-y-5 hidden transition-opacity duration-200">
+        
+        <!-- Identity Statement Card -->
+        <div class="p-5 rounded-2xl bg-gradient-to-br from-indigo-950/60 to-atomic-card border border-indigo-500/30">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-lg">👑</span>
+            <span class="text-xs font-mono uppercase tracking-widest text-indigo-400 font-bold">Identity-Based Habits</span>
+          </div>
+          <h2 class="text-lg font-bold text-white mb-2">Who are you becoming?</h2>
+          <p class="text-xs text-slate-300 leading-relaxed mb-4">
+            "The goal is not to read a book, the goal is to become a reader. The goal is not to run a marathon, the goal is to become a runner."
+          </p>
+
+          <div class="bg-black/50 p-3.5 rounded-xl border border-indigo-500/20">
+            <label class="block text-[11px] font-mono text-slate-400 uppercase mb-1">Your Identity Affirmation</label>
+            <div class="flex items-center gap-2">
+              <span class="text-sm font-bold text-indigo-300">I am</span>
+              <input type="text" id="identityStatementInput" placeholder="a healthy writer who values consistency" 
+                class="flex-1 bg-transparent text-white text-sm font-semibold border-b border-indigo-500/60 focus:border-atomic-gold focus:outline-none py-1">
+              <button id="saveIdentityBtn" class="bg-indigo-600 hover:bg-indigo-500 text-xs font-bold text-white px-3 py-1 rounded-lg transition-all">Save</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cumulative Stats Grid -->
+        <div>
+          <h3 class="text-sm font-bold text-white mb-3">Habit Scorecard Statistics</h3>
+          <div class="grid grid-cols-3 gap-2.5">
+            <div class="p-3.5 rounded-2xl bg-atomic-card border border-atomic-border text-center">
+              <span class="text-[10px] font-mono text-slate-400 uppercase block">Total Checks</span>
+              <span id="statTotalCompletions" class="text-2xl font-black text-white mt-1 block">0</span>
+              <span class="text-[10px] text-emerald-400 font-medium">Votes cast</span>
+            </div>
+            <div class="p-3.5 rounded-2xl bg-atomic-card border border-atomic-border text-center">
+              <span class="text-[10px] font-mono text-slate-400 uppercase block">Active Habits</span>
+              <span id="statActiveHabits" class="text-2xl font-black text-atomic-gold mt-1 block">0</span>
+              <span class="text-[10px] text-slate-400 font-medium">In your system</span>
+            </div>
+            <div class="p-3.5 rounded-2xl bg-atomic-card border border-atomic-border text-center">
+              <span class="text-[10px] font-mono text-slate-400 uppercase block">Best Streak</span>
+              <span id="statBestStreak" class="text-2xl font-black text-atomic-fire mt-1 block">0🔥</span>
+              <span class="text-[10px] text-slate-400 font-medium">Days non-stop</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- The Plateau of Latent Potential Graph/Visual -->
+        <div class="p-5 rounded-2xl bg-atomic-card border border-atomic-border">
+          <div class="flex items-center justify-between mb-2">
+            <h4 class="text-sm font-bold text-white">Plateau of Latent Potential</h4>
+            <span class="text-[10px] font-mono text-atomic-gold bg-atomic-gold/10 px-2 py-0.5 rounded">Key Concept</span>
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed mb-3">
+            Habits often appear to make no difference until you cross a critical threshold and unlock a new level of performance.
+          </p>
+
+          <!-- SVG Visual Representation -->
+          <div class="bg-black/40 rounded-xl p-3 border border-atomic-border/60">
+            <div class="flex justify-between text-[10px] font-mono text-slate-400 mb-1">
+              <span>Day 1</span>
+              <span class="text-atomic-gold font-bold">The Valley of Disappointment</span>
+              <span>Breakthrough</span>
+            </div>
+            <svg class="w-full h-24" viewBox="0 0 300 80">
+              <!-- Linear expectation line -->
+              <line x1="20" y1="65" x2="280" y2="20" stroke="#475569" stroke-width="1.5" stroke-dasharray="4" />
+              <!-- Exponential actual curve -->
+              <path d="M 20 65 Q 160 65 280 10" fill="none" stroke="#F59E0B" stroke-width="3" stroke-linecap="round" />
+              <!-- Labels -->
+              <text x="170" y="32" fill="#94A3B8" font-size="9" font-family="monospace">What you expect</text>
+              <text x="210" y="70" fill="#F59E0B" font-size="9" font-family="monospace">What actually happens</text>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Backup & Restore -->
+        <div class="p-5 rounded-2xl bg-atomic-card border border-atomic-border">
+          <div class="flex items-center justify-between mb-1">
+            <h4 class="text-sm font-bold text-white">Backup &amp; Restore</h4>
+            <span id="lastBackupLabel" class="text-[10px] font-mono text-slate-400">No backup yet</span>
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed mb-3">Your habits live only on this device. Export a file now and then so clearing browser data never wipes your streaks.</p>
+          <div class="grid grid-cols-2 gap-2">
+            <button id="exportDataBtn" class="py-2.5 rounded-xl bg-atomic-gold text-slate-950 text-xs font-bold hover:bg-atomic-amber active:scale-95 transition-all">Export backup</button>
+            <button id="importDataBtn" class="py-2.5 rounded-xl bg-slate-900 border border-atomic-border text-slate-200 text-xs font-bold hover:border-atomic-gold active:scale-95 transition-all">Import backup</button>
+          </div>
+          <input type="file" id="importFileInput" accept="application/json,.json" class="hidden">
+        </div>
+
+        <!-- Reset All Data safeguard -->
+        <div class="pt-3 text-center">
+          <button id="resetAllDataBtn" class="text-xs text-red-400/80 hover:text-red-400 hover:underline transition-all">
+            Reset All Habits & Tracker Data
+          </button>
+        </div>
+
+      </section>
+
+    </main>
+
+    <nav class="fixed bottom-0 left-0 right-0 max-w-lg mx-auto glass-nav border-t border-atomic-border/60 z-40 px-3 py-2">
+      <div class="grid grid-cols-4 gap-1">
+        <!-- Tab 1: Today -->
+        <button data-tab="tabToday" class="bottom-nav-btn active flex flex-col items-center justify-center py-1.5 px-2 rounded-xl text-atomic-gold transition-all">
+          <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+          </svg>
+          <span class="text-[11px] font-bold tracking-tight">Today</span>
+        </button>
+
+        <!-- Tab 2: Focus Timer -->
+        <button data-tab="tabTimer" class="bottom-nav-btn flex flex-col items-center justify-center py-1.5 px-2 rounded-xl text-slate-400 hover:text-slate-200 transition-all">
+          <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span class="text-[11px] font-bold tracking-tight">Timer</span>
+        </button>
+
+        <!-- Tab 3: Wisdom -->
+        <button data-tab="tabWisdom" class="bottom-nav-btn flex flex-col items-center justify-center py-1.5 px-2 rounded-xl text-slate-400 hover:text-slate-200 transition-all">
+          <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+          </svg>
+          <span class="text-[11px] font-bold tracking-tight">Wisdom</span>
+        </button>
+
+        <!-- Tab 4: Identity -->
+        <button data-tab="tabIdentity" class="bottom-nav-btn flex flex-col items-center justify-center py-1.5 px-2 rounded-xl text-slate-400 hover:text-slate-200 transition-all">
+          <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+          <span class="text-[11px] font-bold tracking-tight">Identity</span>
+        </button>
+      </div>
+    </nav>
+
+    <div id="habitModal" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-sm hidden p-0 sm:p-4">
+      <div id="habitModalContent" class="w-full max-w-lg bg-atomic-card border-t sm:border border-atomic-border rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between pb-3 border-b border-atomic-border/60">
+          <div>
+            <h3 id="modalTitle" class="text-lg font-bold text-white">Create Atomic Habit</h3>
+            <span class="text-xs text-slate-400 font-mono">2-Minute Rule & Habit Stacking</span>
+          </div>
+          <button id="closeHabitModalBtn" class="p-2 text-slate-400 hover:text-white rounded-full bg-slate-800">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <form id="habitForm" class="mt-4 space-y-4">
+          <input type="hidden" id="habitIdInput">
+
+          <!-- Habit Name -->
+          <div>
+            <label class="block text-xs font-mono uppercase text-slate-300 font-semibold mb-1">Habit Name (Keep it tiny)</label>
+            <input type="text" id="habitNameInput" required placeholder="e.g., Read 1 page of a book" 
+              class="w-full bg-slate-900 border border-atomic-border rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-atomic-gold">
+          </div>
+
+          <!-- Habit Stacking Cue: "After [Current Habit], I will [New Habit]" -->
+          <div class="bg-slate-900/80 p-3.5 rounded-2xl border border-atomic-border/80">
+            <div class="flex items-center gap-1.5 mb-1.5">
+              <span class="text-xs font-mono font-bold text-atomic-gold">HABIT STACKING FORMULA</span>
+            </div>
+            <p class="text-[11px] text-slate-400 mb-2">"After I <strong class="text-slate-200">[Current Habit]</strong>, I will <strong class="text-slate-200">[New Habit]</strong>"</p>
+            <input type="text" id="habitCueInput" required placeholder="e.g., pour my morning coffee" 
+              class="w-full bg-black/60 border border-atomic-border rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-atomic-gold">
+          </div>
+
+          <!-- Icon & Color Customization -->
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-mono uppercase text-slate-300 font-semibold mb-1.5">Icon / Emoji</label>
+              <div class="flex items-center gap-2">
+                <input type="text" id="habitIconInput" maxlength="2" value="⚡" 
+                  class="w-12 h-11 text-center text-xl bg-slate-900 border border-atomic-border rounded-xl text-white focus:outline-none focus:border-atomic-gold">
+                <!-- Preset quick emoji picker -->
+                <div class="flex gap-1 overflow-x-auto py-1">
+                  <button type="button" class="emoji-pick text-base p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700">📖</button>
+                  <button type="button" class="emoji-pick text-base p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700">💧</button>
+                  <button type="button" class="emoji-pick text-base p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700">🧘</button>
+                  <button type="button" class="emoji-pick text-base p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700">✍️</button>
+                  <button type="button" class="emoji-pick text-base p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700">🏋️</button>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-mono uppercase text-slate-300 font-semibold mb-1.5">Theme Color</label>
+              <div class="flex items-center gap-1.5 pt-1" id="colorPickerContainer">
+                <button type="button" data-color="gold" class="color-pick w-7 h-7 rounded-full bg-amber-500 ring-2 ring-white ring-offset-2 ring-offset-atomic-card"></button>
+                <button type="button" data-color="emerald" class="color-pick w-7 h-7 rounded-full bg-emerald-500"></button>
+                <button type="button" data-color="blue" class="color-pick w-7 h-7 rounded-full bg-blue-500"></button>
+                <button type="button" data-color="purple" class="color-pick w-7 h-7 rounded-full bg-purple-500"></button>
+                <button type="button" data-color="rose" class="color-pick w-7 h-7 rounded-full bg-rose-500"></button>
+              </div>
+              <input type="hidden" id="habitColorInput" value="gold">
+            </div>
+          </div>
+
+          <!-- Default Timer Duration -->
+          <div>
+            <label class="block text-xs font-mono uppercase text-slate-300 font-semibold mb-1">Focus Duration (Minutes)</label>
+            <div class="flex items-center gap-2">
+              <input type="number" id="habitDurationInput" min="1" max="120" value="2" 
+                class="w-24 bg-slate-900 border border-atomic-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-atomic-gold">
+              <span class="text-xs text-slate-400">minutes (The 2-Minute Rule recommends 2 mins!)</span>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="pt-2">
+            <button type="submit" class="w-full bg-gradient-to-r from-atomic-gold to-atomic-amber text-slate-950 font-black py-3 rounded-xl text-sm shadow-lg shadow-atomic-gold/20 hover:brightness-110 active:scale-95 transition-all">
+              Save Habit into Daily System
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="insightModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md hidden p-4">
+      <div id="insightModalContent" class="w-full max-w-sm bg-gradient-to-b from-atomic-card to-slate-950 border border-atomic-gold/50 rounded-3xl p-6 text-center shadow-2xl relative overflow-hidden">
+        <!-- Background light glow -->
+        <div class="absolute -top-12 left-1/2 -translate-x-1/2 w-40 h-40 bg-atomic-gold/20 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="w-16 h-16 mx-auto mb-3 rounded-2xl bg-atomic-gold/20 border border-atomic-gold flex items-center justify-center text-3xl shadow-lg">
+          🔥
+        </div>
+
+        <span class="text-[11px] font-mono uppercase tracking-widest text-atomic-gold font-extrabold block">1% Better Accomplished!</span>
+        <h3 id="insightModalHeadline" class="text-lg font-black text-white mt-1">Vote Cast for Your Identity!</h3>
+
+        <div class="my-4 p-4 rounded-2xl bg-black/60 border border-atomic-border text-left relative">
+          <span class="text-2xl text-atomic-gold/40 font-serif absolute top-1 left-2">“</span>
+          <p id="insightModalQuote" class="text-xs text-slate-200 leading-relaxed italic pl-3 pr-1 pt-1">
+            "Every action you take is a vote for the type of person you wish to become. No single instance will transform your beliefs, but as the votes build up, so does the evidence of your new identity."
+          </p>
+          <span id="insightModalCategory" class="block mt-2 text-[10px] font-mono text-atomic-gold uppercase font-bold text-right">— James Clear</span>
+        </div>
+
+        <button id="closeInsightModalBtn" class="w-full bg-atomic-gold text-slate-950 font-black py-3 rounded-xl text-xs hover:bg-atomic-amber active:scale-95 transition-all">
+          Keep Building Momentum
+        </button>
+      </div>
+    </div>
+
+    <div id="calendarModal" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-sm hidden">
+      <div class="w-full max-w-lg bg-atomic-card border-t sm:border border-atomic-border rounded-t-3xl sm:rounded-3xl p-5 shadow-2xl max-h-[92vh] overflow-y-auto">
+        <div class="flex items-start justify-between gap-3">
+          <div class="min-w-0">
+            <h3 id="calTitle" class="text-lg font-bold text-white leading-snug break-words"></h3>
+            <p id="calCue" class="text-xs text-slate-400 mt-0.5 break-words"></p>
+          </div>
+          <div class="flex gap-2 flex-shrink-0">
+            <button id="calEditBtn" class="px-3 py-2 rounded-xl bg-slate-800 text-xs font-semibold text-slate-200 hover:bg-slate-700">Edit</button>
+            <button id="calCloseBtn" class="p-2 text-slate-400 hover:text-white rounded-full bg-slate-800" aria-label="Close">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+          </div>
+        </div>
+        <div id="calStats" class="grid grid-cols-4 gap-2 mt-4"></div>
+        <div class="flex items-center justify-between mt-5 mb-2">
+          <button id="calPrevBtn" class="w-9 h-9 rounded-xl bg-slate-800 text-white text-lg hover:bg-slate-700" aria-label="Previous month">&lsaquo;</button>
+          <span id="calMonthLabel" class="text-sm font-bold text-white"></span>
+          <button id="calNextBtn" class="w-9 h-9 rounded-xl bg-slate-800 text-white text-lg hover:bg-slate-700 disabled:opacity-30" aria-label="Next month">&rsaquo;</button>
+        </div>
+        <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-mono text-slate-500 mb-1">
+          <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
+        </div>
+        <div id="calGrid" class="grid grid-cols-7 gap-1"></div>
+        <p class="text-[11px] text-slate-500 mt-3 text-center">Tap a day to mark or unmark it. Future days are locked.</p>
+      </div>
+    </div>
+
+    <div id="toast" class="fixed left-1/2 -translate-x-1/2 bottom-24 z-[60] max-w-[90%] bg-slate-800 border border-atomic-border text-xs text-white px-4 py-2.5 rounded-xl shadow-xl opacity-0 pointer-events-none transition-opacity duration-300"></div>
+
+    <div id="confirmModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm hidden p-4">
+      <div class="w-full max-w-xs bg-atomic-card border border-atomic-border rounded-2xl p-5 text-center shadow-2xl">
+        <h4 id="confirmTitle" class="text-base font-bold text-white mb-2">Delete Habit?</h4>
+        <p id="confirmMessage" class="text-xs text-slate-400 mb-5">This action cannot be undone.</p>
+        <div class="flex gap-2">
+          <button id="confirmCancelBtn" class="flex-1 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold hover:bg-slate-700">Cancel</button>
+          <button id="confirmActionBtn" class="flex-1 py-2 rounded-xl bg-red-600 text-white text-xs font-semibold hover:bg-red-500">Delete</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="js/app.js" defer></script>
+</body>
+</html>
